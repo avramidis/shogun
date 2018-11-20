@@ -1,0 +1,20 @@
+Math:init_random(1)
+
+File fm_cube = csv_file("../../data/fm_train_cube.dat")
+
+#![create_features]
+StringCharFeatures charfeat(fm_cube, enum EAlphabet.CUBE)
+StringWordFeatures feats(charfeat.get_alphabet())
+feats.obtain_from_char(charfeat, 1, 2, 0, False)
+#![create_features]
+
+#![create_instance]
+HMM hmm(feats, 1, 64, 0.00001)
+#![create_instance]
+
+#![train_model]
+hmm.train()
+#![train_model]
+
+int num_examples=feats.get_num_vectors()
+int num_param=hmm.get_num_model_parameters()
