@@ -45,7 +45,8 @@
     "Type": {
         "RealFeatures": "DenseFeatures<float64_t>",
         "RealSubsetFeatures": "DenseSubsetFeatures<float64_t>",
-        "StringCharFeatures": "CStringFeatures<char>",
+        "StringCharFeatures": "StringFeatures<char>",
+        "StringWordFeatures": "StringFeatures<uint16_t>",
         "Default": "$typeName",
         "bool": "bool",
         "string": "char*",
@@ -101,7 +102,7 @@
         "StaticCall": "C$typeName::$method($arguments)",
         "GlobalCall": "$method($arguments)",
         "Identifier": "$identifier",
-        "Enum":"(machine_int_t)$typeName::$value"
+        "Enum":"$typeName::$value"
     },
     "Element": {
         "Access": {

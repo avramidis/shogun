@@ -171,7 +171,7 @@
         // Custom type maps are specified like so:
         "RealFeatures": "DenseFeatures<float64_t>",
         "RealSubsetFeatures": "DenseSubsetFeatures<float64_t>",
-        "StringCharFeatures": "CStringFeatures<char>",
+        "StringCharFeatures": "StringFeatures<char>",
 
         // Here the SGVector and SGMatrix types are mapped to their correct
         // types in the target language
