@@ -45,7 +45,7 @@
     "Type": {
         "RealFeatures": "DenseFeatures<float64_t>",
         "RealSubsetFeatures": "DenseSubsetFeatures<float64_t>",
-        "StringCharFeatures": "CStringFeatures<char>",
+        "StringCharFeatures": "StringFeatures<char>",
         "Default": "$typeName",
         "bool": "bool",
         "string": "char*",
