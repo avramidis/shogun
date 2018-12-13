@@ -1,0 +1,10 @@
+File words = csv_file("../../data/words.dat")
+
+#![create_features]
+Features f = string_features(words, enum EAlphabet.RAWBYTE)
+#![create_features]
+
+#![output stat]
+int max_string_length = f.get_int("max_string_length")
+int number_of_strings = f.get_num_vectors()
+#![output stat]
