@@ -722,8 +722,8 @@ protected:
 	 * @param name name of the parameter
 	 * @param method pointer to the method
 	 */
-	template <typename T, typename S>
-	void watch_method(const std::string& name, T (S::*method)() const)
+	template <typename T, typename S, typename... A>
+	void watch_method(const std::string& name, T (S::*method)(A... args) const)
 	{
 		BaseTag tag(name);
 		AnyParameterProperties properties(
@@ -731,10 +731,47 @@ protected:
 			ParameterProperties::HYPER |
 			ParameterProperties::GRADIENT |
             ParameterProperties::MODEL);
-		std::function<T()> bind_method =
+		std::function<T(A... a)> bind_method =
 			std::bind(method, dynamic_cast<const S*>(this));
 		create_parameter(tag, AnyParameter(make_any(bind_method), properties));
 	}
+
+	template <typename T, typename S, typename... A>
+	void watch_method(const std::string& name, T (S::*method)(A... args))
+	{
+		BaseTag tag(name);
+		AnyParameterProperties properties(
+			"Dynamic parameter",
+			ParameterProperties::HYPER |
+			ParameterProperties::GRADIENT |
+            ParameterProperties::MODEL);
+		
+		// std::function<T(A... a)> bind_method =
+		// 	std::bind(method, std::placeholders::_1);
+
+		std::bind(method, std::placeholders::_1);
+		//std::function<void(int)> bind_method = std::bind(method, std::placeholders::_1);
+
+		//make_any(bind_method);
+
+		//create_parameter(tag, AnyParameter(make_any(bind_method), properties));
+	}
+
+	// template <typename T, typename S>
+	// void watch_method(const std::string& name, T (S::*method)(int num))
+	// {
+	// 	BaseTag tag(name);
+	// 	AnyParameterProperties properties(
+	// 		"Dynamic parameter",
+	// 		ParameterProperties::HYPER |
+	// 		ParameterProperties::GRADIENT |
+    //         ParameterProperties::MODEL);
+	// 	auto bind_method =
+	// 		std::bind(method, dynamic_cast<const S*>(this), std::placeholders::_1);
+	// 		make_any(bind_method);
+	// 		//AnyParameter temp(make_any(bind_method), properties);
+	// 	//create_parameter(tag, AnyParameter(make_any(bind_method), properties));
+	// }
 #endif
 
 public:

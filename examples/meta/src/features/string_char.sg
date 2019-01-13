@@ -4,7 +4,21 @@ File words = csv_file("../../data/words.dat")
 Features f = string_features(words, enum EAlphabet.RAWBYTE)
 #![create_features]
 
+#CharVector matrix(4)
+#matrix[0] = 't'
+#matrix[1] = 'e'
+#matrix[2] = 's'
+#matrix[3] = 't'
+
+#f.set_feature_vector(matrix, 0)
+
 #![output stat]
 int max_string_length = f.get_int("max_string_length")
-int number_of_strings = f.get_num_vectors()
+int number_of_strings = f.get_int("num_vectors")
+#f.set_generic("feature_vector", matrix, 0)
+
+##int number_of_strings = f.get_num_vectors()
+#print("length of first string", f.get_vector_length(0))
+#print("string[5]", ''.join(f.get_feature_vector(5)))
+#print("strings", f.get_features())
 #![output stat]
