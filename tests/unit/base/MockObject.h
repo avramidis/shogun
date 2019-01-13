@@ -295,6 +295,11 @@ namespace shogun
 			return 42;
 		}
 
+		void set_method(int num)
+		{
+			int temp = num;
+		}
+
 	protected:
 		void init_params()
 		{
@@ -314,6 +319,8 @@ namespace shogun
 			        "Object", MS_NOT_AVAILABLE, GRADIENT_NOT_AVAILABLE));
 
 			watch_method("some_method", &CMockObject::some_method);
+
+			watch_method("set_method", &CMockObject::set_method);
 		}
 
 	private:

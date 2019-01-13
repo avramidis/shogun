@@ -1731,6 +1731,9 @@ template<class ST> void CStringFeatures<ST>::init()
 
 	m_parameters->add_vector(&symbol_mask_table, &symbol_mask_table_len, "mask_table", "Symbol mask table - using in higher order mapping");
 	watch_param("mask_table", &symbol_mask_table, &symbol_mask_table_len);
+
+	watch_method("num_vectors", &CStringFeatures::get_num_vectors);
+	//watch_method("feature_vector", &CStringFeatures::set_feature_vector);
 }
 
 /** get feature type the char feature can deal with
