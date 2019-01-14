@@ -1,0 +1,21 @@
+CSVFile traindat("../../data/fm_train_real.dat")
+CSVFile testdat("../../data/fm_test_real.dat")
+
+#![create_features]
+Features feats_train = features(traindat)
+Features feats_test = features(testdat)
+#![create_features]
+
+#![create_instance]
+Distance d = distance("EuclideanDistance", lhs=feats_train, rhs=feats_train)
+d.put("disable_sqrt", True)
+#![create_instance]
+
+#![extract_distance]
+RealMatrix dm_train = d.get_distance_matrix()
+#![extract_distance]
+
+#![refresh_distance]
+d.init(feats_train, feats_test)
+RealMatrix dm_test = d.get_distance_matrix()
+#![refresh_distance]
