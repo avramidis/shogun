@@ -643,6 +643,19 @@ template <class ST> class CStringFeatures : public CFeatures
 		/** post method when subset is changed */
 		virtual void subset_changed_post();
 
+#ifndef SWIG // SWIG should skip this part
+		/** Clone StringFeatures */
+		CStringFeatures<ST>* clone();
+
+		/** Equals method up to precision for vectors (element-wise)
+		 * @param other vector to compare with
+		 * @return false if any element differs or if sizes are different,
+		 * true otherwise
+		 */
+		//bool equals(const CStringFeatures<ST>& other) const;
+
+#endif // SWIG // SWIG should skip this part
+
 	protected:
 		/** compute feature vector for sample num
 		 * if target is set the vector is written to target

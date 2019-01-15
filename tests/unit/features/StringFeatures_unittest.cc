@@ -83,7 +83,10 @@ TEST(StringFeaturesTest,clone)
 	SGStringList<char> strings = generateRandomStringData();
 
 	CStringFeatures<char>* f=new CStringFeatures<char>(strings, ALPHANUM);
-	CStringFeatures<char>* f_clone = (CStringFeatures<char> *) f->clone();
+	CStringFeatures<char>* f_clone = (CStringFeatures<char>*)f->clone();
+
+	EXPECT_EQ(f->get_num_vectors(), f_clone->get_num_vectors());
+	EXPECT_EQ(f->get_alphabet()->get_alphabet(), f_clone->get_alphabet()->get_alphabet());
 
 	for (index_t i=0; i<f->get_num_vectors(); ++i)
 	{

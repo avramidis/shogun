@@ -1731,6 +1731,7 @@ template<class ST> void CStringFeatures<ST>::init()
 
 	m_parameters->add_vector(&symbol_mask_table, &symbol_mask_table_len, "mask_table", "Symbol mask table - using in higher order mapping");
 	watch_param("mask_table", &symbol_mask_table, &symbol_mask_table_len);
+	//watch_method("features", &CStringFeatures::get_features);
 }
 
 /** get feature type the char feature can deal with
@@ -2080,6 +2081,40 @@ bool CStringFeatures<ST>::obtain_from_char_features(CStringFeatures<CT>* sf, int
 
 	return true;
 }
+
+template<class ST>
+CStringFeatures<ST>* CStringFeatures<ST>::clone()
+{
+	CStringFeatures<ST>* result = new CStringFeatures<ST>((SGStringList<ST>)this->get_features().clone(), 
+															this->get_alphabet()->get_alphabet());
+
+	SG_REF(result);
+	
+	return result;
+}
+
+// template <class ST>
+// bool CStringFeatures<ST>::equals(const CStringFeatures<ST>& other) const
+// {
+// 	//assert_on_cpu();
+
+// 	// if (other.alphabet!=alphabet)
+// 	// 	return false;
+
+// 	// if (other.vlen!=vlen)
+// 	// 	return false;
+
+// 	// if (vector == other.vector)
+// 	// 	return true;
+
+// 	// for (index_t i=0; i<vlen; ++i)
+// 	// {
+// 	// 	if (other.vector[i]!=vector[i])
+// 	// 		return false;
+// 	// }
+
+// 	return true;
+// }
 
 template class CStringFeatures<bool>;
 template class CStringFeatures<char>;
