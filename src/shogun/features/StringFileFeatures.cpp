@@ -10,6 +10,7 @@ template <class ST> CStringFileFeatures<ST>::CStringFileFeatures() : CStringFeat
 template <class ST> CStringFileFeatures<ST>::CStringFileFeatures(const char* fname, EAlphabet alpha)
 : CStringFeatures<ST>(alpha)
 {
+	file_name = fname;
 	file = new CMemoryMappedFile<ST>(fname);
 	fetch_meta_info_from_file();
 }
@@ -123,33 +124,24 @@ template <class ST> void CStringFileFeatures<ST>::fetch_meta_info_from_file(int3
 template<class ST>
 CStringFileFeatures<ST>* CStringFileFeatures<ST>::clone()
 {
-	CStringFileFeatures<ST>* result = new CStringFileFeatures<ST>();
-	result->alphabet = new CAlphabet(this->get_alphabet());
-	result->file = this->file;
+	CStringFileFeatures<ST>* result;
 
-	SG_REF(result);
-	
+	if (this->get_alphabet()->get_alphabet()==EAlphabet::NONE)
+	{
+		result = new CStringFileFeatures<ST>();
+	}
+	else
+	{
+		result = new CStringFileFeatures<ST>(result->file_name, this->get_alphabet()->get_alphabet());	
+	}	
 	return result;
 }
 
 template <class ST>
 bool CStringFileFeatures<ST>::equals(CStringFileFeatures<ST>& other)
 {
-	// (CAlphabet*)(other.get_alphabet())->get_alphabet();
-	// if ((CAlphabet*)(this->get_alphabet())->get_alphabet()!=(CAlphabet*)(other.get_alphabet())->get_alphabet())
-	// 	return false;
-
-	// if (other.get_num_vectors()!=this->get_num_vectors())
-	// 	return false;
-
-	// for (int32_t line=0; line<num_vectors; line++)
-	// {
-	// 	SGVector<ST> fv=get_feature_vector(line);
-	// 	SGVector<ST> fv_other=other.get_feature_vector(line);
-
-	// 	if(!fv.equals(fv_other))
-	// 		return false;	
-	// }
+	if ((CAlphabet*)(this->get_alphabet())->get_alphabet()!=(CAlphabet*)(other.get_alphabet())->get_alphabet())
+		return false;
 
 	return true;
 }

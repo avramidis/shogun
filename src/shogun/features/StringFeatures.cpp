@@ -2105,7 +2105,6 @@ CStringFeatures<ST>* CStringFeatures<ST>::clone()
 template <class ST>
 bool CStringFeatures<ST>::equals(CStringFeatures<ST>& other)
 {
-	(CAlphabet*)(other.get_alphabet())->get_alphabet();
 	if ((CAlphabet*)(this->get_alphabet())->get_alphabet()!=(CAlphabet*)(other.get_alphabet())->get_alphabet())
 		return false;
 

@@ -57,6 +57,12 @@ template <class ST> class CStringFileFeatures : public CStringFeatures<ST>
 	 */
 	virtual const char* get_name() const { return "StringFileFeatures"; }
 
+	/** Returns the file name to be read.
+	 *
+	 * @return name of the file
+	 */
+	const char* get_file_name() const { return file_name; };
+
 #ifndef SWIG // SWIG should skip this part
 	// /** Clone StringFeatures */
 	CStringFileFeatures<ST>* clone();
@@ -102,6 +108,9 @@ template <class ST> class CStringFileFeatures : public CStringFeatures<ST>
 	protected:
 	/** memory mapped file*/
 	CMemoryMappedFile<ST>* file;
+	
+	/** file name*/
+	const char* file_name;
 };
 }
 #endif // _CSTRINGFILEFEATURES__H__

@@ -224,6 +224,7 @@ TYPED_TEST(SGObjectAll, clone_equals_empty)
 {
 	for (auto obj : sg_object_iterator<TypeParam>(sg_object_all_ignores))
 	{
+		std::cout<<obj->get_name()<<std::endl;
 		SCOPED_TRACE(obj->get_name());
 
 		CSGObject* clone = obj->clone();
