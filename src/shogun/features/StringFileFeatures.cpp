@@ -134,6 +134,7 @@ CStringFileFeatures<ST>* CStringFileFeatures<ST>::clone()
 	{
 		result = new CStringFileFeatures<ST>(result->file_name, this->get_alphabet()->get_alphabet());	
 	}	
+	SG_REF(result);
 	return result;
 }
 
