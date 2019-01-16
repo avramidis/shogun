@@ -66,7 +66,7 @@ template <class ST> class CStringFileFeatures : public CStringFeatures<ST>
 	 * @return false if any element differs or if sizes are different,
 	 * true otherwise
 	 */
-	//bool equals(const CStringFileFeatures<ST>& other) const;
+	bool equals(CStringFileFeatures<ST>& other);
 
 #endif // SWIG // SWIG should skip this part
 

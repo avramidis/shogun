@@ -127,19 +127,31 @@ CStringFileFeatures<ST>* CStringFileFeatures<ST>::clone()
 	result->alphabet = new CAlphabet(this->get_alphabet());
 	result->file = this->file;
 
-	// if (get_alphabet()->get_alphabet()!=EAlphabet::NONE)
-	// {
-	// 	result = new CStringFileFeatures<ST>((SGStringList<ST>)get_features().clone(), 
-	// 														get_alphabet());
-	// }
-	// else
-	// {
-	// 	result = new CStringFileFeatures<ST>();
-	// }
-
 	SG_REF(result);
 	
 	return result;
+}
+
+template <class ST>
+bool CStringFileFeatures<ST>::equals(CStringFileFeatures<ST>& other)
+{
+	// (CAlphabet*)(other.get_alphabet())->get_alphabet();
+	// if ((CAlphabet*)(this->get_alphabet())->get_alphabet()!=(CAlphabet*)(other.get_alphabet())->get_alphabet())
+	// 	return false;
+
+	// if (other.get_num_vectors()!=this->get_num_vectors())
+	// 	return false;
+
+	// for (int32_t line=0; line<num_vectors; line++)
+	// {
+	// 	SGVector<ST> fv=get_feature_vector(line);
+	// 	SGVector<ST> fv_other=other.get_feature_vector(line);
+
+	// 	if(!fv.equals(fv_other))
+	// 		return false;	
+	// }
+
+	return true;
 }
 
 template class CStringFileFeatures<bool>;
