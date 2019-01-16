@@ -81,6 +81,64 @@ TEST(StringFeaturesTest,copy_subset)
 TEST(StringFeaturesTest,clone)
 {
 	SGStringList<char> strings = generateRandomStringData();
+	CStringFeatures<char>* f=new CStringFeatures<char>(strings, ALPHANUM);
+	CStringFeatures<char>* f_clone = (CStringFeatures<char>*)f->clone();
+
+	EXPECT_EQ(f->get_num_vectors(), f_clone->get_num_vectors());
+	EXPECT_EQ(f->get_alphabet()->get_alphabet(), f_clone->get_alphabet()->get_alphabet());
+
+	for (index_t i=0; i<f->get_num_vectors(); ++i)
+	{
+		index_t a_len;
+		index_t b_len;
+		bool a_free;
+		bool b_free;
+
+		char * a_vec = f->get_feature_vector(i, a_len, a_free);
+		char * b_vec = f_clone->get_feature_vector(i, b_len, b_free);
+
+		EXPECT_EQ(a_len, b_len);
+		EXPECT_EQ(a_free, b_free);
+		for (index_t j = 0; j < a_len; ++j)
+			EXPECT_EQ(a_vec[j], b_vec[j]);
+	}
+
+	SG_UNREF(f);
+	SG_UNREF(f_clone);
+}
+
+TEST(StringFeaturesTest,clonebool)
+{
+	SGStringList<bool> strings = generateBoolRandomStringData();
+	CStringFeatures<bool>* f=new CStringFeatures<bool>();
+	CStringFeatures<bool>* f_clone = (CStringFeatures<bool>*)f->clone();
+
+	EXPECT_EQ(f->get_num_vectors(), f_clone->get_num_vectors());
+	EXPECT_EQ(f->get_alphabet()->get_alphabet(), f_clone->get_alphabet()->get_alphabet());
+
+	for (index_t i=0; i<f->get_num_vectors(); ++i)
+	{
+		index_t a_len;
+		index_t b_len;
+		bool a_free;
+		bool b_free;
+
+		bool * a_vec = f->get_feature_vector(i, a_len, a_free);
+		bool * b_vec = f_clone->get_feature_vector(i, b_len, b_free);
+
+		EXPECT_EQ(a_len, b_len);
+		EXPECT_EQ(a_free, b_free);
+		for (index_t j = 0; j < a_len; ++j)
+			EXPECT_EQ(a_vec[j], b_vec[j]);
+	}
+
+	SG_UNREF(f);
+	SG_UNREF(f_clone);
+}
+
+TEST(StringFeaturesTest,equals)
+{
+	SGStringList<char> strings = generateRandomStringData();
 
 	CStringFeatures<char>* f=new CStringFeatures<char>(strings, ALPHANUM);
 	CStringFeatures<char>* f_clone = (CStringFeatures<char>*)f->clone();

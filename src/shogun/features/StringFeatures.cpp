@@ -2085,8 +2085,17 @@ bool CStringFeatures<ST>::obtain_from_char_features(CStringFeatures<CT>* sf, int
 template<class ST>
 CStringFeatures<ST>* CStringFeatures<ST>::clone()
 {
-	CStringFeatures<ST>* result = new CStringFeatures<ST>((SGStringList<ST>)this->get_features().clone(), 
-															this->get_alphabet()->get_alphabet());
+	CStringFeatures<ST>* result;
+
+	if (get_alphabet()->get_alphabet()!=EAlphabet::NONE)
+	{
+		result = new CStringFeatures<ST>((SGStringList<ST>)get_features().clone(), 
+															get_alphabet());
+	}
+	else
+	{
+		result = new CStringFeatures<ST>();
+	}
 
 	SG_REF(result);
 	
@@ -2098,8 +2107,8 @@ CStringFeatures<ST>* CStringFeatures<ST>::clone()
 // {
 // 	//assert_on_cpu();
 
-// 	// if (other.alphabet!=alphabet)
-// 	// 	return false;
+// 	if (other.alphabet!=alphabet)
+// 		return false;
 
 // 	// if (other.vlen!=vlen)
 // 	// 	return false;

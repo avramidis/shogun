@@ -13,7 +13,7 @@
 #include <shogun/base/range.h>
 #include <shogun/base/some.h>
 #include <shogun/io/SerializableAsciiFile.h>
-
+#include <iostream>
 using namespace shogun;
 
 // to have a type for non-template SGObject classes
@@ -201,6 +201,7 @@ TYPED_TEST(SGObjectAll, clone_basic)
 	for (auto obj : sg_object_iterator<TypeParam>(sg_object_all_ignores))
 	{
 		SCOPED_TRACE(obj->get_name());
+		std::cout << (obj->get_name()) << std::endl;;
 		CSGObject* clone = nullptr;
 		try
 		{
