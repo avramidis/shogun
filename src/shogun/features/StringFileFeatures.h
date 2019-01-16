@@ -57,6 +57,19 @@ template <class ST> class CStringFileFeatures : public CStringFeatures<ST>
 	 */
 	virtual const char* get_name() const { return "StringFileFeatures"; }
 
+#ifndef SWIG // SWIG should skip this part
+	// /** Clone StringFeatures */
+	CStringFileFeatures<ST>* clone();
+
+	/** Equals method up to precision for vectors (element-wise)
+	 * @param other vector to compare with
+	 * @return false if any element differs or if sizes are different,
+	 * true otherwise
+	 */
+	//bool equals(const CStringFileFeatures<ST>& other) const;
+
+#endif // SWIG // SWIG should skip this part
+
 	protected:
 	/** get next line from file
 	 *

@@ -647,12 +647,12 @@ template <class ST> class CStringFeatures : public CFeatures
 		// /** Clone StringFeatures */
 		CStringFeatures<ST>* clone();
 
-		// /** Equals method up to precision for vectors (element-wise)
-		//  * @param other vector to compare with
-		//  * @return false if any element differs or if sizes are different,
-		//  * true otherwise
-		//  */
-		// bool equals(const CStringFeatures<ST>& other) const;
+		/** Equals method up to precision for vectors (element-wise)
+		 * @param other vector to compare with
+		 * @return false if any element differs or if sizes are different,
+		 * true otherwise
+		 */
+		bool equals(CStringFeatures<ST>& other);
 
 #endif // SWIG // SWIG should skip this part
 

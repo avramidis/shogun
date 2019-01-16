@@ -120,6 +120,28 @@ template <class ST> void CStringFileFeatures<ST>::fetch_meta_info_from_file(int3
 	CStringFeatures<ST>::features=SG_REALLOC(SGString<ST>, CStringFeatures<ST>::features, buffer_size, CStringFeatures<ST>::num_vectors);
 }
 
+template<class ST>
+CStringFileFeatures<ST>* CStringFileFeatures<ST>::clone()
+{
+	CStringFileFeatures<ST>* result = new CStringFileFeatures<ST>();
+	result->alphabet = new CAlphabet(this->get_alphabet());
+	result->file = this->file;
+
+	// if (get_alphabet()->get_alphabet()!=EAlphabet::NONE)
+	// {
+	// 	result = new CStringFileFeatures<ST>((SGStringList<ST>)get_features().clone(), 
+	// 														get_alphabet());
+	// }
+	// else
+	// {
+	// 	result = new CStringFileFeatures<ST>();
+	// }
+
+	SG_REF(result);
+	
+	return result;
+}
+
 template class CStringFileFeatures<bool>;
 template class CStringFileFeatures<char>;
 template class CStringFileFeatures<int8_t>;

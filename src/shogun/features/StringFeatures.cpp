@@ -2102,28 +2102,27 @@ CStringFeatures<ST>* CStringFeatures<ST>::clone()
 	return result;
 }
 
-// template <class ST>
-// bool CStringFeatures<ST>::equals(const CStringFeatures<ST>& other) const
-// {
-// 	//assert_on_cpu();
+template <class ST>
+bool CStringFeatures<ST>::equals(CStringFeatures<ST>& other)
+{
+	(CAlphabet*)(other.get_alphabet())->get_alphabet();
+	if ((CAlphabet*)(this->get_alphabet())->get_alphabet()!=(CAlphabet*)(other.get_alphabet())->get_alphabet())
+		return false;
 
-// 	if (other.alphabet!=alphabet)
-// 		return false;
+	if (other.get_num_vectors()!=this->get_num_vectors())
+		return false;
 
-// 	// if (other.vlen!=vlen)
-// 	// 	return false;
+	for (int32_t line=0; line<num_vectors; line++)
+	{
+		SGVector<ST> fv=get_feature_vector(line);
+		SGVector<ST> fv_other=other.get_feature_vector(line);
 
-// 	// if (vector == other.vector)
-// 	// 	return true;
+		if(!fv.equals(fv_other))
+			return false;	
+	}
 
-// 	// for (index_t i=0; i<vlen; ++i)
-// 	// {
-// 	// 	if (other.vector[i]!=vector[i])
-// 	// 		return false;
-// 	// }
-
-// 	return true;
-// }
+	return true;
+}
 
 template class CStringFeatures<bool>;
 template class CStringFeatures<char>;
