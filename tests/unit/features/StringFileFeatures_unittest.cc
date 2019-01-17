@@ -24,26 +24,13 @@ TEST(StringFileFeaturesTest,clone)
 	SG_UNREF(f_clone);
 }
 
-TEST(StringFileFeaturesTest,clone_bool)
+TEST(StringFileFeaturesTest,equals)
 {
-	CStringFileFeatures<bool>* f=new CStringFileFeatures<bool>();
-	CStringFileFeatures<bool>* f_clone = (CStringFileFeatures<bool>*)f->clone();
+	CStringFileFeatures<char>* f=new CStringFileFeatures<char>();
+	CStringFileFeatures<char>* f_clone = (CStringFileFeatures<char>*)f->clone();
 
-	EXPECT_EQ(f->get_alphabet()->get_alphabet(), f_clone->get_alphabet()->get_alphabet());
-	EXPECT_EQ(f->get_file_name(), f_clone->get_file_name());
+	EXPECT_EQ(f->equals(*f_clone), true);
 
 	SG_UNREF(f);
 	SG_UNREF(f_clone);
-}
-
-TEST(StringFileFeaturesTest,equals)
-{
-	// SGStringList<char> strings = generateRandomStringData();
-
-	// CStringFeatures<char>* f=new CStringFeatures<char>(strings, ALPHANUM);
-	// CStringFeatures<char>* f_clone = (CStringFeatures<char>*)f->clone();
-	// EXPECT_EQ(f->equals(*f_clone), true);
-
-	// SG_UNREF(f);
-	// SG_UNREF(f_clone);
 }
