@@ -644,12 +644,12 @@ template <class ST> class CStringFeatures : public CFeatures
 		virtual void subset_changed_post();
 
 #ifndef SWIG // SWIG should skip this part
-		// /** Clone StringFeatures */
+		// /** Clone for CStringFeatures */
 		CStringFeatures<ST>* clone();
 
-		/** Equals method up to precision for vectors (element-wise)
-		 * @param other vector to compare with
-		 * @return false if any element differs or if sizes are different,
+		/** Equals method to CStringFeatures
+		 * @param other CStringFeatures to compare with
+		 * @return false if alphabets and feature vectors are different,
 		 * true otherwise
 		 */
 		bool equals(CStringFeatures<ST>& other);

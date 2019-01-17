@@ -64,14 +64,14 @@ template <class ST> class CStringFileFeatures : public CStringFeatures<ST>
 	const char* get_file_name() const { return file_name; };
 
 #ifndef SWIG // SWIG should skip this part
-	// /** Clone StringFeatures */
+	// /** Clone for CStringFileFeatures */
 	CStringFileFeatures<ST>* clone();
 
-	/** Equals method up to precision for vectors (element-wise)
-	 * @param other vector to compare with
-	 * @return false if any element differs or if sizes are different,
-	 * true otherwise
-	 */
+		/** Equals method to CStringFileFeatures
+		 * @param other CStringFileFeatures to compare with
+		 * @return false if alphabets and file name are different,
+		 * true otherwise
+		 */
 	bool equals(CStringFileFeatures<ST>& other);
 
 #endif // SWIG // SWIG should skip this part
