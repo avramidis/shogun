@@ -718,7 +718,7 @@ TYPEMAP_STRINGFEATURES(int64_t, int, Int, jint, "Int[][]", "[[I")
 TYPEMAP_STRINGFEATURES(uint64_t, long, Long, jlong, "Long[][]", "[[J")
 TYPEMAP_STRINGFEATURES(long long, long, Long, jlong, "Long[][]", "[[J")
 TYPEMAP_STRINGFEATURES(float32_t, float, Float, jfloat, "Float[][]", "[[F")
-TYPEMAP_STRINGFEATURES(float64_t, double, Double, jdouble, "Doulbe[][]", "[[D")
+TYPEMAP_STRINGFEATURES(float64_t, double, Double, jdouble, "Double[][]", "[[D")
 
 #undef TYPEMAP_STRINGFEATURES
 
