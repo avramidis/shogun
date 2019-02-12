@@ -90,11 +90,12 @@ public:
 	}
         virtual SGVector<float64_t> get_gradient()
 	{
-		REQUIRE(m_obj,"Object not set\n");
-		m_obj->compute_gradient();
-		TParameter* param=m_obj->m_gradient_parameters->get_parameter("inducing_features");
-		SGVector<float64_t> derivatives=m_obj->get_derivative_wrt_inducing_features(param);
-		return derivatives;
+		SG_NOTIMPLEMENTED;
+		// REQUIRE(m_obj,"Object not set\n");
+		// m_obj->compute_gradient();
+		// TParameter* param=m_obj->m_gradient_parameters->get_parameter("inducing_features");
+		// SGVector<float64_t> derivatives=m_obj->get_derivative_wrt_inducing_features(param);
+		// return derivatives;
 	}
         virtual SGVector<float64_t> get_lower_bound()
 	{

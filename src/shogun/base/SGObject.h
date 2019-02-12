@@ -94,8 +94,6 @@ template <class T> class SGStringList;
 		this->watch_param(name, param, pprop);                                 \
 		if (pprop.get_model_selection())                                       \
 			this->m_model_selection_parameters->add(param, name, description); \
-		if (pprop.get_gradient())                                              \
-			this->m_gradient_parameters->add(param, name, description);        \
 	}
 
 #define SG_ADD(...) VARARG(SG_ADD, __VA_ARGS__)
@@ -882,9 +880,6 @@ public:
 
 	/** model selection parameters */
 	Parameter* m_model_selection_parameters;
-
-	/** parameters wrt which we can compute gradients */
-	Parameter* m_gradient_parameters;
 
 	/** Hash of parameter values*/
 	uint32_t m_hash;

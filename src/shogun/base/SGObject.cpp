@@ -205,7 +205,6 @@ CSGObject::~CSGObject()
 	unset_global_objects();
 	delete m_parameters;
 	delete m_model_selection_parameters;
-	delete m_gradient_parameters;
 	delete m_refcount;
 	delete m_subject_params;
 	delete m_observable_params;
@@ -521,7 +520,6 @@ void CSGObject::init()
 	version = NULL;
 	m_parameters = new Parameter();
 	m_model_selection_parameters = new Parameter();
-	m_gradient_parameters=new Parameter();
 	m_generic = PT_NOT_GENERIC;
 	m_load_pre_called = false;
 	m_load_post_called = false;
@@ -659,23 +657,7 @@ void CSGObject::get_parameter_incremental_hash(uint32_t& hash, uint32_t& carry,
 
 void CSGObject::build_gradient_parameter_dictionary(CMap<TParameter*, CSGObject*>* dict)
 {
-	for (index_t i=0; i<m_gradient_parameters->get_num_parameters(); i++)
-	{
-		TParameter* p=m_gradient_parameters->get_parameter(i);
-		dict->add(p, this);
-	}
-
-	for (index_t i=0; i<m_model_selection_parameters->get_num_parameters(); i++)
-	{
-		TParameter* p=m_model_selection_parameters->get_parameter(i);
-		CSGObject* child=*(CSGObject**)(p->m_parameter);
-
-		if ((p->m_datatype.m_ptype == PT_SGOBJECT) &&
-				(p->m_datatype.m_ctype == CT_SCALAR) &&	child)
-		{
-			child->build_gradient_parameter_dictionary(dict);
-		}
-	}
+	SG_NOTIMPLEMENTED;
 }
 
 CSGObject* CSGObject::clone()

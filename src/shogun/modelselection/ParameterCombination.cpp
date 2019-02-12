@@ -28,90 +28,92 @@ CParameterCombination::CParameterCombination(Parameter* param)
 
 CParameterCombination::CParameterCombination(CSGObject* obj)
 {
-	init();
+	SG_NOTIMPLEMENTED;
+	
+	// init();
 
-	Parameter* gradient_params=obj->m_gradient_parameters;
+	// Parameter* gradient_params=obj->m_gradient_parameters;
 
-	for (index_t i=0; i<gradient_params->get_num_parameters(); i++)
-	{
-		TParameter* param=gradient_params->get_parameter(i);
-		TSGDataType type=param->m_datatype;
+	// for (index_t i=0; i<gradient_params->get_num_parameters(); i++)
+	// {
+	// 	TParameter* param=gradient_params->get_parameter(i);
+	// 	TSGDataType type=param->m_datatype;
 
-		if (type.m_ptype==PT_FLOAT64 || type.m_ptype==PT_FLOAT32 ||
-			type.m_ptype==PT_FLOATMAX)
-		{
-			if (type.m_ctype==CT_SGVECTOR || type.m_ctype==CT_VECTOR)
-			{
-				Parameter* p=new Parameter();
-				p->add_vector((float64_t**)param->m_parameter, type.m_length_y,
-						param->m_name);
+	// 	if (type.m_ptype==PT_FLOAT64 || type.m_ptype==PT_FLOAT32 ||
+	// 		type.m_ptype==PT_FLOATMAX)
+	// 	{
+	// 		if (type.m_ctype==CT_SGVECTOR || type.m_ctype==CT_VECTOR)
+	// 		{
+	// 			Parameter* p=new Parameter();
+	// 			p->add_vector((float64_t**)param->m_parameter, type.m_length_y,
+	// 					param->m_name);
 
-				m_child_nodes->append_element(new CParameterCombination(p));
-				m_parameters_length+=*(type.m_length_y);
-			}
-			else if (type.m_ctype==CT_SGMATRIX || type.m_ctype==CT_MATRIX)
-			{
-				Parameter* p=new Parameter();
-				p->add_matrix((float64_t**)param->m_parameter, type.m_length_y,
-					type.m_length_x, param->m_name);
+	// 			m_child_nodes->append_element(new CParameterCombination(p));
+	// 			m_parameters_length+=*(type.m_length_y);
+	// 		}
+	// 		else if (type.m_ctype==CT_SGMATRIX || type.m_ctype==CT_MATRIX)
+	// 		{
+	// 			Parameter* p=new Parameter();
+	// 			p->add_matrix((float64_t**)param->m_parameter, type.m_length_y,
+	// 				type.m_length_x, param->m_name);
 
-				m_child_nodes->append_element(new CParameterCombination(p));
-				m_parameters_length+=type.get_num_elements();
-			}
-			else if (type.m_ctype==CT_SCALAR)
-			{
-				Parameter* p=new Parameter();
-				p->add((float64_t*)param->m_parameter, param->m_name);
+	// 			m_child_nodes->append_element(new CParameterCombination(p));
+	// 			m_parameters_length+=type.get_num_elements();
+	// 		}
+	// 		else if (type.m_ctype==CT_SCALAR)
+	// 		{
+	// 			Parameter* p=new Parameter();
+	// 			p->add((float64_t*)param->m_parameter, param->m_name);
 
-				m_child_nodes->append_element(new CParameterCombination(p));
-				m_parameters_length++;
-			}
-			else
-			{
-				SG_WARNING("Parameter %s.%s was not added to parameter combination, "
-					"since it isn't a type currently supported\n", obj->get_name(),
-					param->m_name);
-			}
-		}
-		else
-		{
-			SG_WARNING("Parameter %s.%s was not added to parameter combination, "
-					"since it isn't of floating point type\n", obj->get_name(),
-					param->m_name);
-		}
-	}
+	// 			m_child_nodes->append_element(new CParameterCombination(p));
+	// 			m_parameters_length++;
+	// 		}
+	// 		else
+	// 		{
+	// 			SG_WARNING("Parameter %s.%s was not added to parameter combination, "
+	// 				"since it isn't a type currently supported\n", obj->get_name(),
+	// 				param->m_name);
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		SG_WARNING("Parameter %s.%s was not added to parameter combination, "
+	// 				"since it isn't of floating point type\n", obj->get_name(),
+	// 				param->m_name);
+	// 	}
+	// }
 
-	Parameter* modsel_params=obj->m_model_selection_parameters;
+	// Parameter* modsel_params=obj->m_model_selection_parameters;
 
-	for (index_t i=0; i<modsel_params->get_num_parameters(); i++)
-	{
-		TParameter* param=modsel_params->get_parameter(i);
-		TSGDataType type=param->m_datatype;
+	// for (index_t i=0; i<modsel_params->get_num_parameters(); i++)
+	// {
+	// 	TParameter* param=modsel_params->get_parameter(i);
+	// 	TSGDataType type=param->m_datatype;
 
-		if (type.m_ptype==PT_SGOBJECT)
-		{
-			if (type.m_ctype==CT_SCALAR)
-			{
-				CSGObject* child=*((CSGObject**)(param->m_parameter));
+	// 	if (type.m_ptype==PT_SGOBJECT)
+	// 	{
+	// 		if (type.m_ctype==CT_SCALAR)
+	// 		{
+	// 			CSGObject* child=*((CSGObject**)(param->m_parameter));
 
-				if (child->m_gradient_parameters->get_num_parameters()>0)
-				{
-					CParameterCombination* comb=new CParameterCombination(child);
+	// 			if (child->m_gradient_parameters->get_num_parameters()>0)
+	// 			{
+	// 				CParameterCombination* comb=new CParameterCombination(child);
 
-					comb->m_param=new Parameter();
-					comb->m_param->add((CSGObject**)(param->m_parameter),
-							param->m_name);
+	// 				comb->m_param=new Parameter();
+	// 				comb->m_param->add((CSGObject**)(param->m_parameter),
+	// 						param->m_name);
 
-					m_child_nodes->append_element(comb);
-					m_parameters_length+=comb->m_parameters_length;
-				}
-			}
-			else
-			{
-				SG_NOTIMPLEMENTED
-			}
-		}
-	}
+	// 				m_child_nodes->append_element(comb);
+	// 				m_parameters_length+=comb->m_parameters_length;
+	// 			}
+	// 		}
+	// 		else
+	// 		{
+	// 			SG_NOTIMPLEMENTED
+	// 		}
+	// 	}
+	// }
 }
 
 void CParameterCombination::init()
