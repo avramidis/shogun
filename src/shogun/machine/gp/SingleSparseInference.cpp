@@ -187,22 +187,22 @@ void CSingleSparseInference::check_fully_sparse()
 }
 
 SGVector<float64_t> CSingleSparseInference::get_derivative_wrt_inference_method(
-		const TParameter* param)
+		const std::string param_name)
 {
 	// the time complexity O(m^2*n) if the TO DO is done
-	REQUIRE(param, "Param not set\n");
-	REQUIRE(!(strcmp(param->m_name, "log_scale")
-			&& strcmp(param->m_name, "log_inducing_noise")
-			&& strcmp(param->m_name, "inducing_features")),
+	REQUIRE(get(param_name), "Param not set\n");
+	REQUIRE(!(param_name.compare("log_scale")
+			&& param_name.compare("log_inducing_noise")
+			&& param_name.compare("inducing_features")),
 		    "Can't compute derivative of"
 			" the nagative log marginal likelihood wrt %s.%s parameter\n",
-			get_name(), param->m_name)
+			get_name(), param_name)
 
-	if (!strcmp(param->m_name, "log_inducing_noise"))
+	if (!param_name.compare("log_inducing_noise"))
 		// wrt inducing_noise
 		// compute derivative wrt inducing noise
-		return get_derivative_wrt_inducing_noise(param);
-	else if (!strcmp(param->m_name, "inducing_features"))
+		return get_derivative_wrt_inducing_noise(param_name);
+	else if (!param_name.compare("inducing_features"))
 	{
 		SGVector<float64_t> res;
 		if (!m_fully_sparse)
@@ -211,11 +211,11 @@ SGVector<float64_t> CSingleSparseInference::get_derivative_wrt_inference_method(
 			int32_t num_samples=m_inducing_features.num_cols;
 			res=SGVector<float64_t>(dim*num_samples);
 			SG_WARNING("Derivative wrt %s cannot be computed since the kernel does not support fully sparse inference\n",
-				param->m_name);
+				param_name);
 			res.zero();
 			return res;
 		}
-		res=get_derivative_wrt_inducing_features(param);
+		res=get_derivative_wrt_inducing_features(param_name);
 		return res;
 	}
 

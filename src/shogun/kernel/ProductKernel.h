@@ -179,12 +179,12 @@ class CProductKernel : public CKernel
 
 		/** return derivative with respect to specified parameter
 		 *
-		 * @param  param the parameter
+		 * @param  param_name the name of the parameter
 		 * @param index the index of the element if parameter is a vector
 		 *
 		 * @return gradient with respect to parameter
 		 */
-		SGMatrix<float64_t> get_parameter_gradient(const TParameter* param,
+		SGMatrix<float64_t> get_parameter_gradient(const std::string param_name,
 				index_t index=-1);
 
 		/** Get the Kernel array

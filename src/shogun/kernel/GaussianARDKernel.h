@@ -122,25 +122,25 @@ public:
 
 	/** return derivative with respect to specified parameter
 	 *
-	 * @param param the parameter
+	 * @param param_name name of the parameter
 	 * @param index the index of the element if parameter is a vector or matrix
 	 * if the parameter is a matrix, index is the linearized index
 	 * of the matrix (column-major)
 	 *
 	 * @return gradient with respect to parameter
 	 */
-	virtual SGMatrix<float64_t> get_parameter_gradient(const TParameter* param,
+	virtual SGMatrix<float64_t> get_parameter_gradient(const std::string param_name,
 			index_t index=-1);
 
 	/** return diagonal part of derivative with respect to specified parameter
 	 *
-	 * @param param the parameter
+	 * @param param_name name of the parameter
 	 * @param index the index of the element if parameter is a vector
 	 *
 	 * @return diagonal part of gradient with respect to parameter
 	 */
 	virtual SGVector<float64_t> get_parameter_gradient_diagonal(
-		const TParameter* param, index_t index=-1);
+		const std::string param_name, index_t index=-1);
 
 protected:
 	/** helper function to compute quadratic terms in
@@ -196,7 +196,7 @@ protected:
 	 *
 	 * @return gradient at row idx_a and column idx_b with respect to parameter
 	 */
-	virtual float64_t get_parameter_gradient_helper(const TParameter* param,
+	virtual float64_t get_parameter_gradient_helper(const std::string param_name,
 		index_t index, int32_t idx_a, int32_t idx_b,
 		SGVector<float64_t> avec, SGVector<float64_t> bvec);
 };

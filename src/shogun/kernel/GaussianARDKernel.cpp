@@ -198,15 +198,15 @@ float64_t CGaussianARDKernel::compute_gradient_helper(SGVector<float64_t> avec,
 
 
 SGVector<float64_t> CGaussianARDKernel::get_parameter_gradient_diagonal(
-		const TParameter* param, index_t index)
+		const std::string param_name, index_t index)
 {
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	REQUIRE(lhs , "Left features not set!\n");
 	REQUIRE(rhs, "Right features not set!\n");
 
 	if (lhs==rhs)
 	{
-		if (!strcmp(param->m_name, "log_weights"))
+		if (!param_name.compare("log_weights"))
 		{
 			SGVector<float64_t> derivative(num_lhs);
 			derivative.zero();
@@ -220,7 +220,7 @@ SGVector<float64_t> CGaussianARDKernel::get_parameter_gradient_diagonal(
 		check_weight_gradient_index(index);
 		for (index_t j=0; j<length; j++)
 		{
-			if (!strcmp(param->m_name, "log_weights") )
+			if (!param_name.compare("log_weights") )
 			{
 				if (m_ARD_type==KT_SCALAR)
 				{
@@ -231,7 +231,7 @@ SGVector<float64_t> CGaussianARDKernel::get_parameter_gradient_diagonal(
 				{
 					SGVector<float64_t> avec=get_feature_vector(j, lhs);
 					SGVector<float64_t> bvec=get_feature_vector(j, rhs);
-					derivative[j]=get_parameter_gradient_helper(param,index,j,j,avec,bvec);
+					derivative[j]=get_parameter_gradient_helper(param_name,index,j,j,avec,bvec);
 				}
 
 			}
@@ -239,18 +239,18 @@ SGVector<float64_t> CGaussianARDKernel::get_parameter_gradient_diagonal(
 		return derivative;
 	}
 
-	SG_ERROR("Can't compute derivative wrt %s parameter\n", param->m_name);
+	SG_ERROR("Can't compute derivative wrt %s parameter\n", param_name);
 	return SGVector<float64_t>();
 }
 
 
 float64_t CGaussianARDKernel::get_parameter_gradient_helper(
-	const TParameter* param, index_t index, int32_t idx_a,
+	const std::string param_name, index_t index, int32_t idx_a,
 	int32_t idx_b, SGVector<float64_t> avec, SGVector<float64_t> bvec)
 {
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 
-	if (!strcmp(param->m_name, "log_weights"))
+	if (!param_name.compare("log_weights"))
 	{
 		bvec=linalg::add(avec, bvec, 1.0, -1.0);
 		float64_t scale=-kernel(idx_a,idx_b)/2.0;
@@ -258,19 +258,19 @@ float64_t CGaussianARDKernel::get_parameter_gradient_helper(
 	}
 	else
 	{
-		SG_ERROR("Can't compute derivative wrt %s parameter\n", param->m_name);
+		SG_ERROR("Can't compute derivative wrt %s parameter\n", param_name);
 		return 0.0;
 	}
 }
 
 SGMatrix<float64_t> CGaussianARDKernel::get_parameter_gradient(
-		const TParameter* param, index_t index)
+		const std::string param_name, index_t index)
 {
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	REQUIRE(lhs , "Left features not set!\n");
 	REQUIRE(rhs, "Right features not set!\n");
 
-	if (!strcmp(param->m_name, "log_weights"))
+	if (!param_name.compare("log_weights"))
 	{
 		SGMatrix<float64_t> derivative(num_lhs, num_rhs);
 		check_weight_gradient_index(index);
@@ -287,7 +287,7 @@ SGMatrix<float64_t> CGaussianARDKernel::get_parameter_gradient(
 				else
 				{
 					SGVector<float64_t> bvec=get_feature_vector(k, rhs);
-					derivative(j,k)=get_parameter_gradient_helper(param,index,j,k,avec,bvec);
+					derivative(j,k)=get_parameter_gradient_helper(param_name,index,j,k,avec,bvec);
 				}
 			}
 		}
@@ -295,7 +295,7 @@ SGMatrix<float64_t> CGaussianARDKernel::get_parameter_gradient(
 	}
 	else
 	{
-		SG_ERROR("Can't compute derivative wrt %s parameter\n", param->m_name);
+		SG_ERROR("Can't compute derivative wrt %s parameter\n", param_name);
 		return SGMatrix<float64_t>();
 	}
 }

@@ -148,23 +148,23 @@ protected:
 
 	/** returns derivative of negative log marginal likelihood wrt inducing noise
 	 *
-	 * @param param parameter of given inference class
+	 * @param param_name the name of thee parameter of given inference class
 	 *
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_inducing_noise(
-		const TParameter* param)=0;
+		const std::string param_name)=0;
 
 
 	/** returns derivative of negative log marginal likelihood wrt parameter of
 	 * CInference class
 	 *
-	 * @param param parameter of CInference class
+	 * @param param_name the name of the parameter of CInference class
 	 *
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_inference_method(
-			const TParameter* param);
+			const std::string param_name);
 
 
 	/** returns derivative of negative log marginal likelihood wrt kernel's

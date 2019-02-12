@@ -475,11 +475,11 @@ void CEPInferenceMethod::update_deriv()
 }
 
 SGVector<float64_t> CEPInferenceMethod::get_derivative_wrt_inference_method(
-		const TParameter* param)
+		const std::string param_name)
 {
-	REQUIRE(!strcmp(param->m_name, "log_scale"), "Can't compute derivative of "
+	REQUIRE(!param_name.compare("log_scale"), "Can't compute derivative of "
 			"the nagative log marginal likelihood wrt %s.%s parameter\n",
-			get_name(), param->m_name)
+			get_name(), param_name)
 
 	Map<MatrixXd> eigen_K(m_ktrtr.matrix, m_ktrtr.num_rows, m_ktrtr.num_cols);
 	Map<MatrixXd> eigen_F(m_F.matrix, m_F.num_rows, m_F.num_cols);
@@ -501,12 +501,12 @@ SGVector<float64_t> CEPInferenceMethod::get_derivative_wrt_likelihood_model(
 }
 
 SGVector<float64_t> CEPInferenceMethod::get_derivative_wrt_kernel(
-		const TParameter* param)
+		const std::string param_name)
 {
 	// create eigen representation of the matrix Q
 	Map<MatrixXd> eigen_F(m_F.matrix, m_F.num_rows, m_F.num_cols);
 
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	SGVector<float64_t> result;
 	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
 	result=SGVector<float64_t>(len);

@@ -286,12 +286,12 @@ protected:
 	/** returns derivative of negative log marginal likelihood wrt parameter of
 	 * CInference class
 	 *
-	 * @param param parameter of CInference class
+	 * @param param_name the name of the parameter of CInference class
 	 *
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_inference_method(
-			const TParameter* param);
+			const std::string param_name);
 
 	/** returns derivative of negative log marginal likelihood wrt parameter of
 	 * likelihood model
@@ -306,12 +306,12 @@ protected:
 	/** returns derivative of negative log marginal likelihood wrt kernel's
 	 * parameter
 	 *
-	 * @param param parameter of given kernel
+	 * @param param_name the name of the parameter of given kernel
 	 *
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_kernel(
-			const TParameter* param);
+			const std::string param_name);
 
 	/** returns derivative of negative log marginal likelihood wrt mean
 	 * function's parameter

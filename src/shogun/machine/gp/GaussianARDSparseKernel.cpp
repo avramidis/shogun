@@ -74,20 +74,20 @@ CGaussianARDSparseKernel* CGaussianARDSparseKernel::obtain_from_generic(CKernel*
 }
 
 SGVector<float64_t> CGaussianARDSparseKernel::get_parameter_gradient_diagonal(
-		const TParameter* param, index_t index)
+		const std::string param_name, index_t index)
 {
-	REQUIRE(param, "Param not set\n");
-	if (!strcmp(param->m_name, "inducing_features"))
-		return CKernel::get_parameter_gradient_diagonal(param, index);
+	REQUIRE(get(param_name), "Param not set\n");
+	if (!param_name.compare("inducing_features"))
+		return CKernel::get_parameter_gradient_diagonal(param_name, index);
 	else
-		return CGaussianARDKernel::get_parameter_gradient_diagonal(param, index);
+		return CGaussianARDKernel::get_parameter_gradient_diagonal(param_name, index);
 }
 
 SGMatrix<float64_t> CGaussianARDSparseKernel::get_parameter_gradient(
-		const TParameter* param, index_t index)
+		const std::string param_name, index_t index)
 {
-	REQUIRE(param, "Param not set\n");
-	if (!strcmp(param->m_name, "inducing_features"))
+	REQUIRE(get(param_name), "Param not set\n");
+	if (!param_name.compare("inducing_features"))
 	{
 		REQUIRE(lhs, "Left features not set!\n");
 		REQUIRE(rhs, "Right features not set!\n");
@@ -142,6 +142,6 @@ SGMatrix<float64_t> CGaussianARDSparseKernel::get_parameter_gradient(
 	}
 	else
 	{
-		return CGaussianARDKernel::get_parameter_gradient(param, index);
+		return CGaussianARDKernel::get_parameter_gradient(param_name, index);
 	}
 }

@@ -783,18 +783,18 @@ void CCombinedKernel::enable_subkernel_weight_learning()
 }
 
 SGMatrix<float64_t> CCombinedKernel::get_parameter_gradient(
-		const TParameter* param, index_t index)
+		const std::string param_name, index_t index)
 {
 	SGMatrix<float64_t> result;
 
-	if (!strcmp(param->m_name, "combined_kernel_weight"))
+	if (!param_name.compare("combined_kernel_weight"))
 	{
 		if (append_subkernel_weights)
 		{
 			for (index_t k_idx=0; k_idx<get_num_kernels(); k_idx++)
 			{
 				CKernel* k=get_kernel(k_idx);
-				result=k->get_parameter_gradient(param, index);
+				result=k->get_parameter_gradient(param_name, index);
 
 				SG_UNREF(k);
 
@@ -817,7 +817,7 @@ SGMatrix<float64_t> CCombinedKernel::get_parameter_gradient(
 	}
 	else
 	{
-		if (!strcmp(param->m_name, "subkernel_log_weights"))
+		if (!param_name.compare("subkernel_log_weights"))
 		{
 			if(enable_subkernel_weight_opt)
 			{
@@ -856,7 +856,7 @@ SGMatrix<float64_t> CCombinedKernel::get_parameter_gradient(
 			{
 				CKernel* k=get_kernel(k_idx);
 				SGMatrix<float64_t> derivative=
-					k->get_parameter_gradient(param, index);
+					k->get_parameter_gradient(param_name, index);
 
 				coeff=1.0;
 

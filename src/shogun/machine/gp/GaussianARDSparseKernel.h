@@ -95,25 +95,25 @@ public:
 
 	/** return derivative with respect to specified parameter
 	 *
-	 * @param param the parameter
+	 * @param param_name the name of the parameter
 	 * @param index the index of the element if parameter is a vector or matrix
 	 * if the parameter is a matrix, index is the linearized index
 	 * of the matrix (column-major)
 	 *
 	 * @return gradient with respect to parameter
 	 */
-	virtual SGMatrix<float64_t> get_parameter_gradient(const TParameter* param,
+	virtual SGMatrix<float64_t> get_parameter_gradient(const std::string param_name,
 		index_t index=-1);
 
 	/** return diagonal part of derivative with respect to specified parameter
 	 *
-	 * @param param the parameter
+	 * @param param_name the name of the parameter
 	 * @param index the index of the element if parameter is a vector
 	 *
 	 * @return diagonal part of gradient with respect to parameter
 	 */
 	virtual SGVector<float64_t> get_parameter_gradient_diagonal(
-		const TParameter* param, index_t index=-1);
+		const std::string param_name, index_t index=-1);
 };
 }
 
