@@ -338,12 +338,12 @@ SGVector<float64_t> CExactInferenceMethod::get_derivative_wrt_likelihood_model(
 }
 
 SGVector<float64_t> CExactInferenceMethod::get_derivative_wrt_kernel(
-		const TParameter* param)
+		const std::string param_name)
 {
 	// create eigen representation of the matrix Q
 	Map<MatrixXd> eigen_Q(m_Q.matrix, m_Q.num_rows, m_Q.num_cols);
 
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(param_name, "Param not set\n");
 	SGVector<float64_t> result;
 	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
 	result=SGVector<float64_t>(len);
@@ -353,9 +353,9 @@ SGVector<float64_t> CExactInferenceMethod::get_derivative_wrt_kernel(
 		SGMatrix<float64_t> dK;
 
 		if (result.vlen==1)
-			dK=m_kernel->get_parameter_gradient(param);
+			dK=m_kernel->get_parameter_gradient(param_name);
 		else
-			dK=m_kernel->get_parameter_gradient(param, i);
+			dK=m_kernel->get_parameter_gradient(param_name, i);
 
 		Map<MatrixXd> eigen_dK(dK.matrix, dK.num_rows, dK.num_cols);
 
