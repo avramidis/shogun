@@ -42,6 +42,8 @@
 
 #include <shogun/mathematics/eigen3.h>
 
+#include <shogun/lib/type_case.h>
+
 using namespace shogun;
 using namespace Eigen;
 
@@ -508,7 +510,15 @@ SGVector<float64_t> CEPInferenceMethod::get_derivative_wrt_kernel(
 
 	REQUIRE(get(param_name), "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
+
+	int64_t len;
+	auto f_scalar = [&len](auto value) { return 1;};
+	auto f_vector = [&len, param_name](auto value) { return get(param_name).vlen;};
+	auto f_matrix = [&len, param_name](auto value) { return get(param_name).num_rows*get(param_name).num_cols; };
+
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
+
+	//int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
 	result=SGVector<float64_t>(len);
 
 	for (index_t i=0; i<result.vlen; i++)
@@ -516,9 +526,9 @@ SGVector<float64_t> CEPInferenceMethod::get_derivative_wrt_kernel(
 		SGMatrix<float64_t> dK;
 
 		if (result.vlen==1)
-			dK=m_kernel->get_parameter_gradient(param);
+			dK=m_kernel->get_parameter_gradient(param_name);
 		else
-			dK=m_kernel->get_parameter_gradient(param, i);
+			dK=m_kernel->get_parameter_gradient(param_name, i);
 
 		Map<MatrixXd> eigen_dK(dK.matrix, dK.num_rows, dK.num_cols);
 
@@ -531,7 +541,7 @@ SGVector<float64_t> CEPInferenceMethod::get_derivative_wrt_kernel(
 }
 
 SGVector<float64_t> CEPInferenceMethod::get_derivative_wrt_mean(
-		const TParameter* param)
+		const std::string param_name)
 {
 	SG_NOTIMPLEMENTED
 	return SGVector<float64_t>();

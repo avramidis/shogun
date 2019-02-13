@@ -316,12 +316,12 @@ protected:
 	/** returns derivative of negative log marginal likelihood wrt mean
 	 * function's parameter
 	 *
-	 * @param param parameter of given mean function
+	 * @param param_name the name of the parameter of given mean function
 	 *
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_mean(
-			const TParameter* param);
+			const std::string param_name);
 
 private:
 	void init();
