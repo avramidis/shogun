@@ -172,3 +172,25 @@ TEST(Type_case, static_asserts)
 		sg_any_dispatch(any_float, sg_all_typemap, f_arity_fail))>();
 #endif
 }
+
+TEST(Type_case, get_num_elements)
+{
+	int32_t a_scalar = 42.0;
+	SGVector<int32_t> a_vector = {a_scalar, a_scalar};
+	auto any_value = make_any(a_vector);
+
+	int32_t len = 0;
+	auto f_scalar = [&len](auto value) { len = 1;};
+	auto f_vector = [&len, &a_vector](auto value) { 
+		len = a_vector.size();
+	};
+	auto f_matrix = [&len, &a_vector](auto value) { 
+		len = 1;
+		len = a_vector.size();
+	};
+	sg_any_dispatch(any_value, sg_all_typemap, f_scalar, f_vector, f_matrix);
+
+	std::cout << "Size of element: " << len << std::endl;
+
+	EXPECT_TRUE(true);
+}
