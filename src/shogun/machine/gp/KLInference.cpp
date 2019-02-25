@@ -36,6 +36,7 @@
 #include <shogun/mathematics/Math.h>
 #include <shogun/optimization/FirstOrderCostFunction.h>
 #include <shogun/optimization/lbfgs/LBFGSMinimizer.h>
+#include <shogun/lib/type_case.h>
 
 
 using namespace Eigen;
@@ -287,14 +288,14 @@ float64_t CKLInference::get_negative_log_marginal_likelihood()
 	return get_negative_log_marginal_likelihood_helper();
 }
 
-SGVector<float64_t> CKLInference::get_derivative_wrt_likelihood_model(const TParameter* param)
+SGVector<float64_t> CKLInference::get_derivative_wrt_likelihood_model(const std::string param_name)
 {
 	CVariationalLikelihood * lik=get_variational_likelihood();
 	if (!lik->supports_derivative_wrt_hyperparameter())
 		return SGVector<float64_t> ();
 
 	//%lp_dhyp = likKL(v,lik,hyp.lik,y,K*post.alpha+m,[],[],j);
-	SGVector<float64_t> lp_dhyp=lik->get_first_derivative_wrt_hyperparameter(param);
+	SGVector<float64_t> lp_dhyp=lik->get_first_derivative_wrt_hyperparameter(param_name);
 	Map<VectorXd> eigen_lp_dhyp(lp_dhyp.vector, lp_dhyp.vlen);
 	SGVector<float64_t> result(1);
 	//%dnlZ.lik(j) = -sum(lp_dhyp);
@@ -303,15 +304,20 @@ SGVector<float64_t> CKLInference::get_derivative_wrt_likelihood_model(const TPar
 	return result;
 }
 
-SGVector<float64_t> CKLInference::get_derivative_wrt_mean(const TParameter* param)
+SGVector<float64_t> CKLInference::get_derivative_wrt_mean(const std::string param_name)
 {
 	// create eigen representation of K, Z, dfhat and alpha
 	Map<VectorXd> eigen_alpha(m_alpha.vector, m_alpha.vlen/2);
 
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
-	result=SGVector<float64_t>(len);
+    int64_t len;
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
+    result=SGVector<float64_t>(len);
+    
 
 	for (index_t i=0; i<result.vlen; i++)
 	{
@@ -319,9 +325,9 @@ SGVector<float64_t> CKLInference::get_derivative_wrt_mean(const TParameter* para
 
 		//%dm_t = feval(mean{:}, hyp.mean, x, j);
 		if (result.vlen==1)
-			dmu=m_mean->get_parameter_derivative(m_features, param);
+			dmu=m_mean->get_parameter_derivative(m_features, param_name);
 		else
-			dmu=m_mean->get_parameter_derivative(m_features, param, i);
+			dmu=m_mean->get_parameter_derivative(m_features, param_name, i);
 
 		Map<VectorXd> eigen_dmu(dmu.vector, dmu.vlen);
 
@@ -362,11 +368,11 @@ void CKLInference::register_minimizer(Minimizer* minimizer)
 }
 
 
-SGVector<float64_t> CKLInference::get_derivative_wrt_inference_method(const TParameter* param)
+SGVector<float64_t> CKLInference::get_derivative_wrt_inference_method(const std::string param_name)
 {
-	REQUIRE(!strcmp(param->m_name, "log_scale"), "Can't compute derivative of "
+	REQUIRE(!param_name.compare("log_scale"), "Can't compute derivative of "
 			"the nagative log marginal likelihood wrt %s.%s parameter\n",
-			get_name(), param->m_name)
+			get_name(), param_name)
 
 	Map<MatrixXd> eigen_K(m_ktrtr.matrix, m_ktrtr.num_rows, m_ktrtr.num_cols);
 
@@ -378,11 +384,15 @@ SGVector<float64_t> CKLInference::get_derivative_wrt_inference_method(const TPar
 	return result;
 }
 
-SGVector<float64_t> CKLInference::get_derivative_wrt_kernel(const TParameter* param)
+SGVector<float64_t> CKLInference::get_derivative_wrt_kernel(const std::string param_name)
 {
-	REQUIRE(param, "Param not set\n");
-	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
+	REQUIRE(get(param_name), "Param not set\n");
+	SGVector<float64_t> result;    
+    int64_t len;
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
 	result=SGVector<float64_t>(len);
 
 	for (index_t i=0; i<result.vlen; i++)
@@ -391,9 +401,9 @@ SGVector<float64_t> CKLInference::get_derivative_wrt_kernel(const TParameter* pa
 
 		//dK = feval(covfunc{:},hyper,x,j);
 		if (result.vlen==1)
-			dK=m_kernel->get_parameter_gradient(param);
+			dK=m_kernel->get_parameter_gradient(param_name);
 		else
-			dK=m_kernel->get_parameter_gradient(param, i);
+			dK=m_kernel->get_parameter_gradient(param_name, i);
 
 		result[i]=get_derivative_related_cov(dK);
 		result[i] *= std::exp(m_log_scale * 2.0);

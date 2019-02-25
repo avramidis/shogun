@@ -175,7 +175,7 @@ protected:
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_kernel(
-			const TParameter* param);
+			const std::string param_name);
 
 	/** check the bound constraint is vailid or not
 	 *

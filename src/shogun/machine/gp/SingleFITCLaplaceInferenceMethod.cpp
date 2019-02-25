@@ -39,6 +39,7 @@
 #include <shogun/mathematics/eigen3.h>
 #include <shogun/features/DotFeatures.h>
 #include <shogun/optimization/FirstOrderMinimizer.h>
+#include <shogun/lib/type_case.h>
 
 using namespace shogun;
 using namespace Eigen;
@@ -790,16 +791,16 @@ float64_t CSingleFITCLaplaceInferenceMethod::get_derivative_related_cov(SGVector
 }
 
 SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_inference_method(
-		const TParameter* param)
+		const std::string param_name)
 {
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	//time complexity O(m^2*n)
-	REQUIRE(!(strcmp(param->m_name, "log_scale")
-		&& strcmp(param->m_name, "log_inducing_noise")
-		&& strcmp(param->m_name, "inducing_features")),
+	REQUIRE(!(param_name.compare("log_scale")
+		&& param_name.compare("log_inducing_noise")
+		&& param_name.compate("inducing_features")),
 		"Can't compute derivative of"
 		" the nagative log marginal likelihood wrt %s.%s parameter\n",
-		get_name(), param->m_name)
+		get_name(), param_name)
 
 	SGVector<float64_t> result;
 	int32_t len;
@@ -812,9 +813,9 @@ SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_infere
 			len=dim*num_samples;
 		}
 		else if (!m_fully_sparse)
-			return CSingleFITCInference::get_derivative_wrt_inference_method(param);
+			return CSingleFITCInference::get_derivative_wrt_inference_method(param_name);
 		else
-			return get_derivative_wrt_inducing_features(param);
+			return get_derivative_wrt_inducing_features(param_name);
 	}
 	else
 		len=1;
@@ -822,13 +823,13 @@ SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_infere
 	if (m_Wneg)
 	{
 		result=SGVector<float64_t>(len);
-		return derivative_helper_when_Wneg(result, param);
+		return derivative_helper_when_Wneg(result, param_name);
 	}
 
-	if (!strcmp(param->m_name, "log_inducing_noise"))
+	if (!param_name.compare("log_inducing_noise"))
 		// wrt inducing_noise
 		// compute derivative wrt inducing noise
-		return get_derivative_wrt_inducing_noise(param);
+		return get_derivative_wrt_inducing_noise(param_name);
 
 	result=SGVector<float64_t>(len);
 	// wrt scale
@@ -849,19 +850,19 @@ SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_infere
 }
 
 SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_likelihood_model(
-		const TParameter* param)
+		const std::string param_name)
 {
 	SGVector<float64_t> result(1);
 	if (m_Wneg)
-		return derivative_helper_when_Wneg(result, param);
+		return derivative_helper_when_Wneg(result, param_name);
 
 	// get derivatives wrt likelihood model parameters
 	SGVector<float64_t> lp_dhyp=m_model->get_first_derivative(m_labels,
-			m_mu, param);
+			m_mu, param_name);
 	SGVector<float64_t> dlp_dhyp=m_model->get_second_derivative(m_labels,
-			m_mu, param);
+			m_mu, param_name);
 	SGVector<float64_t> d2lp_dhyp=m_model->get_third_derivative(m_labels,
-			m_mu, param);
+			m_mu, param_name);
 
 	// create eigen representation of the derivatives
 	Map<VectorXd> eigen_lp_dhyp(lp_dhyp.vector, lp_dhyp.vlen);
@@ -884,15 +885,20 @@ SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_likeli
 }
 
 SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_kernel(
-		const TParameter* param)
+		const std::string param_name)
 {
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
-	result=SGVector<float64_t>(len);
+	
+    int64_t len;
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
+    result=SGVector<float64_t>(len);
 
 	if (m_Wneg)
-		return derivative_helper_when_Wneg(result, param);
+		return derivative_helper_when_Wneg(result, param_name);
 
 	m_lock->lock();
 	CFeatures *inducing_features=get_inducing_features();
@@ -904,13 +910,13 @@ SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_kernel
 		SGMatrix<float64_t> deriv_tru;
 
 		m_kernel->init(m_features, m_features);
-		deriv_trtr=m_kernel->get_parameter_gradient_diagonal(param, i);
+		deriv_trtr=m_kernel->get_parameter_gradient_diagonal(param_name, i);
 
 		m_kernel->init(inducing_features, inducing_features);
-		deriv_uu=m_kernel->get_parameter_gradient(param, i);
+		deriv_uu=m_kernel->get_parameter_gradient(param_name, i);
 
 		m_kernel->init(inducing_features, m_features);
-		deriv_tru=m_kernel->get_parameter_gradient(param, i);
+		deriv_tru=m_kernel->get_parameter_gradient(param_name, i);
 
 		// create eigen representation of derivatives
 		Map<VectorXd> ddiagKi(deriv_trtr.vector, deriv_trtr.vlen);
@@ -954,13 +960,18 @@ float64_t CSingleFITCLaplaceInferenceMethod::get_derivative_implicit_term_helper
 }
 
 SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_mean(
-		const TParameter* param)
+		const std::string param_name)
 {
 	//time complexity O(m*n)
 	REQUIRE(param, "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
-	result=SGVector<float64_t>(len);
+	    
+    int64_t len;
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
+    result=SGVector<float64_t>(len);
 
 	if (m_Wneg)
 		return derivative_helper_when_Wneg(result, param);
@@ -968,7 +979,7 @@ SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_mean(
 	for (index_t i=0; i<result.vlen; i++)
 	{
 		SGVector<float64_t> dmu;
-		dmu=m_mean->get_parameter_derivative(m_features, param, i);
+		dmu=m_mean->get_parameter_derivative(m_features, param_name, i);
 		result[i]=get_derivative_related_mean(dmu);
 	}
 
@@ -976,17 +987,17 @@ SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_mean(
 }
 
 SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::derivative_helper_when_Wneg(
-	SGVector<float64_t> res, const TParameter *param)
+	SGVector<float64_t> res, const std::string param_name)
 {
-	REQUIRE(param, "Param not set\n");
-	SG_WARNING("Derivative wrt %s cannot be computed since W (the Hessian (diagonal) matrix) is too negative\n", param->m_name);
+	REQUIRE(get(param_name), "Param not set\n");
+	SG_WARNING("Derivative wrt %s cannot be computed since W (the Hessian (diagonal) matrix) is too negative\n", param_name);
 	//dnlZ = struct('cov',0*hyp.cov, 'mean',0*hyp.mean, 'lik',0*hyp.lik);
 	res.zero();
 	return res;
 }
 
 SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_inducing_features(
-	const TParameter* param)
+	const std::string* param_name)
 {
 	//time complexity depends on the implementation of the provided kernel
 	//time complexity is at least O(max((p*n*m),(m^2*n))), where p is the dimension (#) of features
@@ -1029,15 +1040,15 @@ SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_induci
 		(eigen_B*eigen_Rvdd.transpose())*eigen_Rvdd+
 		(eigen_B*eigen_dlp)*eigen_q.transpose()+(eigen_B*eigen_q)*eigen_dlp.transpose();
 
-	return get_derivative_related_inducing_features(BdK, param);
+	return get_derivative_related_inducing_features(BdK, param_name);
 }
 
 SGVector<float64_t> CSingleFITCLaplaceInferenceMethod::get_derivative_wrt_inducing_noise(
-	const TParameter* param)
+	const std::string param_name)
 {
 	//time complexity O(m^2*n)
 	//explicit term
-	SGVector<float64_t> result=CSingleFITCInference::get_derivative_wrt_inducing_noise(param);
+	SGVector<float64_t> result=CSingleFITCInference::get_derivative_wrt_inducing_noise(param_name);
 
 	//implicit term
 	Map<MatrixXd> eigen_B(m_B.matrix, m_B.num_rows, m_B.num_cols);

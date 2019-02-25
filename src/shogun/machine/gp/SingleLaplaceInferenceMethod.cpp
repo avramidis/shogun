@@ -14,6 +14,7 @@
 #endif //USE_GPL_SHOGUN
 #include <shogun/mathematics/eigen3.h>
 #include <shogun/optimization/FirstOrderMinimizer.h>
+#include <shogun/lib/type_case.h>
 
 using namespace shogun;
 using namespace Eigen;
@@ -684,7 +685,7 @@ SGVector<float64_t> CSingleLaplaceInferenceMethod::get_derivative_wrt_likelihood
 }
 
 SGVector<float64_t> CSingleLaplaceInferenceMethod::get_derivative_wrt_kernel(
-		const TParameter* param)
+		const std::string param_name)
 {
 	// create eigen representation of K, Z, dfhat, dlp and alpha
 	Map<MatrixXd> eigen_K(m_ktrtr.matrix, m_ktrtr.num_rows, m_ktrtr.num_cols);
@@ -693,9 +694,13 @@ SGVector<float64_t> CSingleLaplaceInferenceMethod::get_derivative_wrt_kernel(
 	Map<VectorXd> eigen_dlp(m_dlp.vector, m_dlp.vlen);
 	Map<VectorXd> eigen_alpha(m_alpha.vector, m_alpha.vlen);
 
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
+    int64_t len;
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
 	result=SGVector<float64_t>(len);
 
 	for (index_t i=0; i<result.vlen; i++)
@@ -703,9 +708,9 @@ SGVector<float64_t> CSingleLaplaceInferenceMethod::get_derivative_wrt_kernel(
 		SGMatrix<float64_t> dK;
 
 		if (result.vlen==1)
-			dK=m_kernel->get_parameter_gradient(param);
+			dK=m_kernel->get_parameter_gradient(param_name);
 		else
-			dK=m_kernel->get_parameter_gradient(param, i);
+			dK=m_kernel->get_parameter_gradient(param_name, i);
 
 		Map<MatrixXd> eigen_dK(dK.matrix, dK.num_rows, dK.num_cols);
 

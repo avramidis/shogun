@@ -38,6 +38,8 @@
 #include <shogun/labels/RegressionLabels.h>
 #include <shogun/mathematics/Math.h>
 #include <shogun/mathematics/eigen3.h>
+#include <shogun/lib/type_case.h>
+#include <shogun/lib/type_case.h>
 
 using namespace shogun;
 using namespace Eigen;
@@ -283,11 +285,11 @@ void CExactInferenceMethod::update_deriv()
 }
 
 SGVector<float64_t> CExactInferenceMethod::get_derivative_wrt_inference_method(
-		const TParameter* param)
+		const std::string param_name)
 {
-	REQUIRE(!strcmp(param->m_name, "log_scale"), "Can't compute derivative of "
+	REQUIRE(!param_name.compare("log_scale"), "Can't compute derivative of "
 			"the nagative log marginal likelihood wrt %s.%s parameter\n",
-			get_name(), param->m_name)
+			get_name(), param_name)
 
 	Map<MatrixXd> eigen_K(m_ktrtr.matrix, m_ktrtr.num_rows, m_ktrtr.num_cols);
 	Map<MatrixXd> eigen_Q(m_Q.matrix, m_Q.num_rows, m_Q.num_cols);
@@ -315,11 +317,11 @@ CExactInferenceMethod* CExactInferenceMethod::obtain_from_generic(
 }
 
 SGVector<float64_t> CExactInferenceMethod::get_derivative_wrt_likelihood_model(
-		const TParameter* param)
+		const std::string param_name)
 {
-	REQUIRE(!strcmp(param->m_name, "log_sigma"), "Can't compute derivative of "
+	REQUIRE(!param_name.compare("log_sigma"), "Can't compute derivative of "
 			"the nagative log marginal likelihood wrt %s.%s parameter\n",
-			m_model->get_name(), param->m_name)
+			m_model->get_name(), param_name)
 
 	// get the sigma variable from the Gaussian likelihood model
 	CGaussianLikelihood* lik = m_model->as<CGaussianLikelihood>();
@@ -345,7 +347,12 @@ SGVector<float64_t> CExactInferenceMethod::get_derivative_wrt_kernel(
 
 	REQUIRE(param_name, "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
+    
+    int64_t len;
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
 	result=SGVector<float64_t>(len);
 
 	for (index_t i=0; i<result.vlen; i++)
@@ -368,14 +375,20 @@ SGVector<float64_t> CExactInferenceMethod::get_derivative_wrt_kernel(
 }
 
 SGVector<float64_t> CExactInferenceMethod::get_derivative_wrt_mean(
-		const TParameter* param)
+		const std::string param_name)
 {
 	// create eigen representation of alpha vector
 	Map<VectorXd> eigen_alpha(m_alpha.vector, m_alpha.vlen);
 
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
+    
+    int64_t len;    
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
+    
 	result=SGVector<float64_t>(len);
 
 	for (index_t i=0; i<result.vlen; i++)
@@ -383,9 +396,9 @@ SGVector<float64_t> CExactInferenceMethod::get_derivative_wrt_mean(
 		SGVector<float64_t> dmu;
 
 		if (result.vlen==1)
-			dmu=m_mean->get_parameter_derivative(m_features, param);
+			dmu=m_mean->get_parameter_derivative(m_features, param_name);
 		else
-			dmu=m_mean->get_parameter_derivative(m_features, param, i);
+			dmu=m_mean->get_parameter_derivative(m_features, param_name, i);
 
 		Map<VectorXd> eigen_dmu(dmu.vector, dmu.vlen);
 

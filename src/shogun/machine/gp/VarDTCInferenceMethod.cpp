@@ -415,12 +415,17 @@ float64_t CVarDTCInferenceMethod::get_derivative_related_cov(SGVector<float64_t>
 }
 
 SGVector<float64_t> CVarDTCInferenceMethod::get_derivative_wrt_mean(
-	const TParameter* param)
+	const std::string param_name)
 {
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
-	result=SGVector<float64_t>(len);
+    
+    int64_t len;
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
+    result=SGVector<float64_t>(len);
 
 	SGVector<float64_t> y=((CRegressionLabels*) m_labels)->get_labels();
 	Map<VectorXd> eigen_y(y.vector, y.vlen);
@@ -433,7 +438,7 @@ SGVector<float64_t> CVarDTCInferenceMethod::get_derivative_wrt_mean(
 
 	for (index_t i=0; i<result.vlen; i++)
 	{
-		SGVector<float64_t> dmu=m_mean->get_parameter_derivative(m_features, param, i);
+		SGVector<float64_t> dmu=m_mean->get_parameter_derivative(m_features, param_name, i);
 		Map<VectorXd> eigen_dmu(dmu.vector, dmu.vlen);
 
 		result[i] = eigen_dmu.dot(

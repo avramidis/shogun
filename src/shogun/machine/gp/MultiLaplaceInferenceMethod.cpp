@@ -46,6 +46,7 @@
 #include <shogun/mathematics/Math.h>
 #ifdef USE_GPL_SHOGUN
 #include <shogun/lib/external/brent.h>
+#include <shogun/lib/type_case.h>
 #endif //USE_GPL_SHOGUN
 
 using namespace shogun;
@@ -446,24 +447,28 @@ SGVector<float64_t> CMultiLaplaceInferenceMethod::get_derivative_wrt_inference_m
 }
 
 SGVector<float64_t> CMultiLaplaceInferenceMethod::get_derivative_wrt_kernel(
-		const TParameter* param)
+		const std::string param_name)
 {
 	// create eigen representation of K, Z, dfhat, dlp and alpha
 	Map<MatrixXd> eigen_K(m_ktrtr.matrix, m_ktrtr.num_rows, m_ktrtr.num_cols);
 
-	REQUIRE(param, "Param not set\n");
+	REQUIRE(get(param_name), "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
-	result=SGVector<float64_t>(len);
+    int64_t len;
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
+    result=SGVector<float64_t>(len);
 
 	for (index_t i=0; i<result.vlen; i++)
 	{
 		SGMatrix<float64_t> dK;
 
 		if (result.vlen==1)
-			dK=m_kernel->get_parameter_gradient(param);
+			dK=m_kernel->get_parameter_gradient(param_name);
 		else
-			dK=m_kernel->get_parameter_gradient(param, i);
+			dK=m_kernel->get_parameter_gradient(param_name, i);
 
 		result[i]=get_derivative_helper(dK);
 		result[i] *= std::exp(m_log_scale * 2.0);
@@ -473,7 +478,7 @@ SGVector<float64_t> CMultiLaplaceInferenceMethod::get_derivative_wrt_kernel(
 }
 
 SGVector<float64_t> CMultiLaplaceInferenceMethod::get_derivative_wrt_mean(
-		const TParameter* param)
+		const std::string param_name)
 {
 	// create eigen representation of K, Z, dfhat and alpha
 	Map<MatrixXd> eigen_K(m_ktrtr.matrix, m_ktrtr.num_rows, m_ktrtr.num_cols);
@@ -482,18 +487,22 @@ SGVector<float64_t> CMultiLaplaceInferenceMethod::get_derivative_wrt_mean(
 	const index_t n=m_labels->get_num_labels();
 
 	REQUIRE(param, "Param not set\n");
-	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
-	result=SGVector<float64_t>(len);
+	SGVector<float64_t> result;    
+    int64_t len;    
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
+    result=SGVector<float64_t>(len);
 
 	for (index_t i=0; i<result.vlen; i++)
 	{
 		SGVector<float64_t> dmu;
 
 		if (result.vlen==1)
-			dmu=m_mean->get_parameter_derivative(m_features, param);
+			dmu=m_mean->get_parameter_derivative(m_features, param_name);
 		else
-			dmu=m_mean->get_parameter_derivative(m_features, param, i);
+			dmu=m_mean->get_parameter_derivative(m_features, param_name, i);
 
 		Map<VectorXd> eigen_dmu(dmu.vector, dmu.vlen);
 

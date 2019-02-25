@@ -510,17 +510,11 @@ SGVector<float64_t> CEPInferenceMethod::get_derivative_wrt_kernel(
 
 	REQUIRE(get(param_name), "Param not set\n");
 	SGVector<float64_t> result;
-
 	int64_t len;
-
-	TYPE type = type_internal::get_type(make_any(get(param_name)), sg_all_typemap);
-	auto f_scalar = [this, &len, type](auto value) { return 1;};
-	auto f_vector = [this, &len, type, param_name](auto value) { return decltype(type)get(param_name)->vlen; };
-	auto f_matrix = [this, &len, type, param_name](auto value) { return decltype(type)get(param_name)->num_rows*get(param_name)->num_cols; };
-	
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
 	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
-
-	//int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
 	result=SGVector<float64_t>(len);
 
 	for (index_t i=0; i<result.vlen; i++)

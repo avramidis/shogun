@@ -40,6 +40,10 @@
 #include <shogun/mathematics/eigen3.h>
 #include <shogun/features/DotFeatures.h>
 #include <shogun/optimization/FirstOrderBoundConstraintsCostFunction.h>
+#include <shogun/lib/type_case.h>
+#include <shogun/lib/type_case.h>
+#include <shogun/lib/type_case.h>
+#include <shogun/lib/type_case.h>
 
 using namespace shogun;
 using namespace Eigen;
@@ -239,11 +243,16 @@ SGVector<float64_t> CSingleSparseInference::get_derivative_wrt_inference_method(
 }
 
 SGVector<float64_t> CSingleSparseInference::get_derivative_wrt_kernel(
-	const TParameter* param)
+	const std::string param_name)
 {
 	REQUIRE(param, "Param not set\n");
 	SGVector<float64_t> result;
-	int64_t len=const_cast<TParameter *>(param)->m_datatype.get_num_elements();
+    
+    int64_t len;
+	auto f_scalar = [this, &len](auto value) { return 1;};
+	auto f_vector = [this, &len, param_name](auto value) { return ((SGVector<float64_t>*)get(param_name))->vlen; };
+	auto f_matrix = [this, &len, param_name](auto value) { return ((SGMatrix<float>*)get(param_name))->num_rows*((SGMatrix<float>*)get(param_name))->num_cols; };
+	sg_any_dispatch(make_any(get(param_name)), sg_all_typemap, f_scalar, f_vector, f_matrix);
 	result=SGVector<float64_t>(len);
 
 	CFeatures *inducing_features=get_inducing_features();
@@ -257,13 +266,13 @@ SGVector<float64_t> CSingleSparseInference::get_derivative_wrt_kernel(
 		m_kernel->init(m_features, m_features);
 		//to reduce the time complexity
 		//the kernel object only computes diagonal elements of gradients wrt hyper-parameter
-		deriv_trtr=m_kernel->get_parameter_gradient_diagonal(param, i);
+		deriv_trtr=m_kernel->get_parameter_gradient_diagonal(param_name, i);
 
 		m_kernel->init(inducing_features, inducing_features);
-		deriv_uu=m_kernel->get_parameter_gradient(param, i);
+		deriv_uu=m_kernel->get_parameter_gradient(param_name, i);
 
 		m_kernel->init(inducing_features, m_features);
-		deriv_tru=m_kernel->get_parameter_gradient(param, i);
+		deriv_tru=m_kernel->get_parameter_gradient(param_name, i);
 		m_lock->unlock();
 
 		// create eigen representation of derivatives

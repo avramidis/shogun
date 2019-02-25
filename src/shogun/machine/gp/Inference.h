@@ -418,7 +418,7 @@ protected:
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_inference_method(
-			const TParameter* param)=0;
+			const std::string param_name)=0;
 
 	/** returns derivative of negative log marginal likelihood wrt parameter of
 	 * likelihood model
@@ -428,7 +428,7 @@ protected:
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_likelihood_model(
-			const TParameter* param)=0;
+			const std::string param_name)=0;
 
 	/** returns derivative of negative log marginal likelihood wrt kernel's
 	 * parameter
@@ -438,7 +438,7 @@ protected:
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_kernel(
-			const TParameter* param)=0;
+			const std::string param_name)=0;
 
 	/** returns derivative of negative log marginal likelihood wrt mean
 	 * function's parameter
@@ -448,7 +448,7 @@ protected:
 	 * @return derivative of negative log marginal likelihood
 	 */
 	virtual SGVector<float64_t> get_derivative_wrt_mean(
-			const TParameter* param)=0;
+			const std::string param_name)=0;
 
 	/** update gradients */
 	virtual void compute_gradient();
